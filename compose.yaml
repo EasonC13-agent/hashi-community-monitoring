@@ -61,6 +61,7 @@ services:
       REFRESH_SECONDS: 60
       PROBE_TIMEOUT_SECONDS: 5
       PROBE_WORKERS: 24
+      SERVICE_INFO_REFRESH_SECONDS: 300
     volumes:
       - ./data/committee.json:/data/committee.json:ro
 

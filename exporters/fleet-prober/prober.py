@@ -7,6 +7,7 @@ import json
 import os
 import socket
 import ssl
+import subprocess
 import threading
 import time
 
@@ -19,9 +20,12 @@ PORT = int(os.getenv("PORT", "19101"))
 REFRESH_SECONDS = int(os.getenv("REFRESH_SECONDS", "60"))
 TIMEOUT = float(os.getenv("PROBE_TIMEOUT_SECONDS", "5"))
 WORKERS = int(os.getenv("PROBE_WORKERS", "24"))
+SERVICE_INFO_REFRESH_SECONDS = int(os.getenv("SERVICE_INFO_REFRESH_SECONDS", "300"))
 NETWORK = os.getenv("NETWORK", "testnet")
 _lock = threading.Lock()
 _metrics = ""
+_service_cache_lock = threading.Lock()
+_service_cache = {}
 
 
 def esc(value):
@@ -44,7 +48,7 @@ def labels(member):
 def _probe_once(member):
     started = time.monotonic()
     endpoint = member.get("endpoint")
-    result = {"dns": 0, "safe": 0, "tcp": 0, "tls": 0, "h2": 0, "duration": 0.0, "fingerprint": ""}
+    result = {"dns": 0, "safe": 0, "tcp": 0, "tls": 0, "h2": 0, "duration": 0.0, "fingerprint": "", "target_ip": "", "service_info": 0, "server": "", "reported_epoch": 0, "checkpoint": 0}
     if not endpoint:
         result["duration"] = time.monotonic() - started
         return member, result
@@ -63,6 +67,7 @@ def _probe_once(member):
             return member, result
         result["safe"] = 1
         family, socktype, proto, _, sockaddr = public[0]
+        result["target_ip"] = sockaddr[0]
         raw = socket.socket(family, socktype, proto)
         raw.settimeout(TIMEOUT)
         raw.connect(sockaddr)
@@ -89,14 +94,50 @@ def _probe_once(member):
 def probe(member):
     first_member, first = _probe_once(member)
     if first["h2"] or not first["safe"]:
-        return first_member, first
-    time.sleep(0.25)
-    second_member, second = _probe_once(member)
-    first_score = (first["h2"], first["tls"], first["tcp"], first["dns"])
-    second_score = (second["h2"], second["tls"], second["tcp"], second["dns"])
-    chosen_member, chosen = (second_member, second) if second_score > first_score else (first_member, first)
-    chosen["duration"] = first["duration"] + second["duration"] + 0.25
+        chosen_member, chosen = first_member, first
+    else:
+        time.sleep(0.25)
+        second_member, second = _probe_once(member)
+        first_score = (first["h2"], first["tls"], first["tcp"], first["dns"])
+        second_score = (second["h2"], second["tls"], second["tcp"], second["dns"])
+        chosen_member, chosen = (second_member, second) if second_score > first_score else (first_member, first)
+        chosen["duration"] = first["duration"] + second["duration"] + 0.25
+    if chosen["h2"]:
+        query_service_info(chosen_member, chosen)
     return chosen_member, chosen
+
+
+def query_service_info(member, result):
+    cache_key = member["endpoint"]
+    with _service_cache_lock:
+        cached = _service_cache.get(cache_key)
+    if cached and time.time() - cached[0] < SERVICE_INFO_REFRESH_SECONDS:
+        result.update(cached[1])
+        return
+    parsed = urlparse(member["endpoint"])
+    host = parsed.hostname
+    port = parsed.port or 443
+    ip = result["target_ip"]
+    target = f"[{ip}]:{port}" if ":" in ip else f"{ip}:{port}"
+    command = [
+        "/usr/local/bin/grpcurl", "-insecure", "-max-time", str(max(1, int(TIMEOUT))),
+        "-authority", host, "-import-path", "/app", "-proto", "service_info.proto", "-d", "{}",
+        target, "sui.hashi.v1alpha.BridgeService/GetServiceInfo",
+    ]
+    try:
+        completed = subprocess.run(command, capture_output=True, text=True, timeout=TIMEOUT + 2)
+        if completed.returncode != 0:
+            return
+        payload = json.loads(completed.stdout or "{}")
+        result["service_info"] = 1
+        result["server"] = payload.get("server", "")
+        result["reported_epoch"] = int(payload.get("epoch", 0))
+        result["checkpoint"] = int(payload.get("checkpointHeight", 0))
+        cached_result = {key: result[key] for key in ("service_info", "server", "reported_epoch", "checkpoint")}
+        with _service_cache_lock:
+            _service_cache[cache_key] = (time.time(), cached_result)
+    except Exception:
+        return
 
 
 def load_roster():
@@ -133,8 +174,13 @@ def render():
             f'hashi_network_endpoint_tls_up{{{lab}}} {result["tls"]}',
             f'hashi_network_endpoint_http2_ready{{{lab}}} {result["h2"]}',
             f'hashi_network_endpoint_probe_duration_seconds{{{lab}}} {result["duration"]:.6f}',
-
+            f'hashi_network_endpoint_service_info_success{{{lab}}} {result["service_info"]}',
+            f'hashi_network_endpoint_version_reporting{{{lab}}} {1 if result["server"] else 0}',
+            f'hashi_network_endpoint_reported_epoch{{{lab}}} {result["reported_epoch"]}',
+            f'hashi_network_endpoint_reported_checkpoint{{{lab}}} {result["checkpoint"]}',
         ])
+        if result["server"]:
+            lines.append(f'hashi_network_endpoint_version_info{{{lab},server="{esc(result["server"])}"}} 1')
         if result["fingerprint"]:
             lines.append(f'hashi_network_endpoint_cert_info{{{lab},sha256="{result["fingerprint"]}"}} 1')
     return "\n".join(lines) + "\n"

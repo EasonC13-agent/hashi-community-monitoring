@@ -1,0 +1,15 @@
+syntax = "proto3";
+package sui.hashi.v1alpha;
+
+service BridgeService {
+  rpc GetServiceInfo(GetServiceInfoRequest) returns (GetServiceInfoResponse);
+}
+
+message GetServiceInfoRequest {}
+message GetServiceInfoResponse {
+  optional string chain_id = 1;
+  optional string chain = 2;
+  optional uint64 epoch = 3;
+  optional uint64 checkpoint_height = 4;
+  optional string server = 8;
+}

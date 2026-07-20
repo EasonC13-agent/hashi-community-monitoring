@@ -78,6 +78,9 @@ The network overview does not scrape private metrics from other operators. Every
 - full validator/operator addresses and registered endpoint
 - DNS resolution, TCP reachability, TLS handshake and HTTP/2 ALPN readiness
 - probe duration and certificate fingerprint
+- public `GetServiceInfo` response, reported server version, epoch and checkpoint
+
+Hashi builds before [MystenLabs/Hashi#846](https://github.com/MystenLabs/hashi/pull/846) return an empty `GetServiceInfoResponse`, so their version is correctly shown as unknown. Once nodes upgrade to a build containing that change, the dashboard automatically groups exact `hashi/0.0.0-<commit>` versions and exposes upgrade lag.
 
 The upstream Hashi CLI currently truncates committee output and has no JSON mode. `scripts/patch_hashi_committee_json.py` adds a read-only `HASHI_COMMITTEE_JSON=1` output path. Build it as a separate discovery image; do not replace the production Hashi image:
 
