@@ -179,8 +179,8 @@ def render():
             f'hashi_network_endpoint_reported_epoch{{{lab}}} {result["reported_epoch"]}',
             f'hashi_network_endpoint_reported_checkpoint{{{lab}}} {result["checkpoint"]}',
         ])
-        if result["server"]:
-            lines.append(f'hashi_network_endpoint_version_info{{{lab},server="{esc(result["server"])}"}} 1')
+        server_label = result["server"] or "unknown"
+        lines.append(f'hashi_network_endpoint_version_info{{{lab},server="{esc(server_label)}"}} 1')
         if result["fingerprint"]:
             lines.append(f'hashi_network_endpoint_cert_info{{{lab},sha256="{result["fingerprint"]}"}} 1')
     return "\n".join(lines) + "\n"

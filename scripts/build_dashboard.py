@@ -59,7 +59,7 @@ def variable(name, label, query, multi=True, include_all=True):
     }
 
 for panel in d.get("panels", []):
-    panel["gridPos"]["y"] = panel.get("gridPos", {}).get("y", 0) + 24
+    panel["gridPos"]["y"] = panel.get("gridPos", {}).get("y", 0) + 32
     panel["title"] = re.sub(r"❗\s*", "", panel.get("title", ""))
     if panel.get("id") == 86:
         panel["title"] = "Presignature Gauge (informational)"
@@ -116,6 +116,20 @@ version_distribution = {
     "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
     "options": {"reduceOptions": {"values": True, "calcs": ["lastNotNull"], "fields": ""}, "pieType": "donut", "tooltip": {"mode": "single", "sort": "none"}, "legend": {"displayMode": "table", "placement": "right", "showLegend": True, "values": ["value", "percent"]}},
 }
+version_table = {
+    "id": 1115, "type": "table", "title": "Per-node Reported Version",
+    "description": "Every on-chain committee member. `unknown` means the endpoint does not yet populate GetServiceInfo.server.",
+    "gridPos": {"x": 0, "y": 18, "w": 24, "h": 8},
+    "datasource": {"type": "prometheus", "uid": "${datasource}"},
+    "targets": [{"refId": "A", "expr": f'hashi_network_endpoint_version_info{{{network_filter}}}', "instant": True, "range": False}],
+    "fieldConfig": {"defaults": {}, "overrides": []},
+    "transformations": [
+        {"id": "labelsToFields", "options": {"mode": "columns"}},
+        {"id": "organize", "options": {"excludeByName": {"Time": True, "Value": True, "__name__": True, "network": True}, "renameByName": {"host": "Node", "server": "Version", "validator": "Validator", "operator": "Operator", "endpoint": "Endpoint"}}},
+        {"id": "sortBy", "options": {"fields": {}, "sort": [{"field": "Version", "desc": False}, {"field": "Node", "desc": False}]}},
+    ],
+    "options": {"showHeader": True, "cellHeight": "sm", "footer": {"show": False, "reducer": ["sum"], "countRows": False, "fields": ""}},
+}
 new_panels = [
     {"id": 1100, "type": "row", "title": "Hashi Testnet — Entire On-chain Committee", "collapsed": False, "panels": [], "gridPos": {"x": 0, "y": 0, "w": 24, "h": 1}},
     stat_panel(1101, "Committee Epoch", f'max(hashi_network_committee_epoch{{{network_filter}}})', 0),
@@ -130,13 +144,14 @@ new_panels = [
     stat_panel(1112, "Version Reporting", f'sum(hashi_network_endpoint_version_reporting{{{network_filter}}})', 4, w=4, y=13),
     stat_panel(1113, "Unknown Version", f'max(hashi_network_committee_members{{{network_filter}}}) - sum(hashi_network_endpoint_version_reporting{{{network_filter}}})', 8, w=4, y=13),
     version_distribution,
-    {"id": 1000, "type": "row", "title": "Opt-in Deep Metrics — Selected Operators", "collapsed": False, "panels": [], "gridPos": {"x": 0, "y": 18, "w": 24, "h": 1}},
-    stat_panel(1001, "Reporting Nodes", f'count(max by(node,operator)(up{{job="hashi",{fleet_filter}}}))', 0, y=19),
-    stat_panel(1002, "Healthy Nodes", healthy, 4, y=19),
-    stat_panel(1003, "Epoch-aligned Nodes", f'sum((max by(node,operator)(hashi_epoch{{{fleet_filter}}}) - on(node,operator) max by(node,operator)(hashi_sui_epoch{{{fleet_filter}}})) == bool 0)', 8, y=19),
-    stat_panel(1004, "Operator SUI Reserve", f'sum(hashi_operator_sui_balance_mist{{{fleet_filter}}}) / 1e9', 12, unit="sui", y=19),
-    stat_panel(1005, "Bitcoin RPC Healthy", f'sum(max by(node,operator)(bitcoin_node_rpc_available{{{fleet_filter}}}) == 1)', 16, y=19),
-    stat_panel(1006, "Kyoto Synced", f'sum(max by(node,operator)(hashi_kyoto_synced{{{fleet_filter}}}) == 1)', 20, y=19),
+    version_table,
+    {"id": 1000, "type": "row", "title": "Opt-in Deep Metrics — Selected Operators", "collapsed": False, "panels": [], "gridPos": {"x": 0, "y": 26, "w": 24, "h": 1}},
+    stat_panel(1001, "Reporting Nodes", f'count(max by(node,operator)(up{{job="hashi",{fleet_filter}}}))', 0, y=27),
+    stat_panel(1002, "Healthy Nodes", healthy, 4, y=27),
+    stat_panel(1003, "Epoch-aligned Nodes", f'sum((max by(node,operator)(hashi_epoch{{{fleet_filter}}}) - on(node,operator) max by(node,operator)(hashi_sui_epoch{{{fleet_filter}}})) == bool 0)', 8, y=27),
+    stat_panel(1004, "Operator SUI Reserve", f'sum(hashi_operator_sui_balance_mist{{{fleet_filter}}}) / 1e9', 12, unit="sui", y=27),
+    stat_panel(1005, "Bitcoin RPC Healthy", f'sum(max by(node,operator)(bitcoin_node_rpc_available{{{fleet_filter}}}) == 1)', 16, y=27),
+    stat_panel(1006, "Kyoto Synced", f'sum(max by(node,operator)(hashi_kyoto_synced{{{fleet_filter}}}) == 1)', 20, y=27),
 ]
 d["panels"] = new_panels + d.get("panels", [])
 DEST.parent.mkdir(parents=True, exist_ok=True)
