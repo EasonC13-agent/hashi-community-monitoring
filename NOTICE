@@ -1,0 +1,11 @@
+Hashi Community Monitoring
+Copyright 2026 GiveRep contributors
+
+The detailed Grafana dashboard is derived from:
+  trusted-point/Hashi-Bitcoin-Monitoring
+  https://github.com/trusted-point/Hashi-Bitcoin-Monitoring
+  Licensed under the Apache License, Version 2.0.
+
+The derived dashboard has been modified to add provider-neutral fleet labels,
+multi-operator variables, fleet overview panels, Sui Address Balance metrics,
+and actionable-only alert semantics.

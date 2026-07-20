@@ -1,0 +1,7 @@
+- targets: ["127.0.0.1:19180"]
+  labels:
+    network: testnet
+    operator: GiveRep
+    node: giverep-testnet
+    validator: "0xc9b5b3b3f815a3be385dae47d2baee94911fbd7a13c257891b5c82f492e1644a"
+    endpoint: "https://hashi.testnet.giverep.com/"

@@ -1,0 +1,27 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 30s
+  external_labels:
+    monitor: hashi-community
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["127.0.0.1:19090"]
+
+  - job_name: hashi
+    file_sd_configs:
+      - files: ["/etc/prometheus/targets/hashi.yml"]
+        refresh_interval: 1m
+
+  - job_name: bitcoin
+    file_sd_configs:
+      - files: ["/etc/prometheus/targets/bitcoin.yml"]
+        refresh_interval: 1m
+
+  - job_name: sui-balance
+    static_configs:
+      - targets: ["127.0.0.1:19100"]
