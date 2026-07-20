@@ -49,6 +49,21 @@ services:
       SUI_GRAPHQL_URL: ${SUI_GRAPHQL_URL:-https://graphql.testnet.sui.io/graphql}
       NODES_JSON: ${NODES_JSON:?set NODES_JSON}
 
+  fleet-prober:
+    build: ./exporters/fleet-prober
+    container_name: hashi-community-fleet-prober
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      PORT: 19101
+      NETWORK: testnet
+      ROSTER_FILE: /data/committee.json
+      REFRESH_SECONDS: 60
+      PROBE_TIMEOUT_SECONDS: 5
+      PROBE_WORKERS: 24
+    volumes:
+      - ./data/committee.json:/data/committee.json:ro
+
   bitcoin-exporter:
     build: ./exporters/bitcoin
     container_name: hashi-community-bitcoin-exporter

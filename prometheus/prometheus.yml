@@ -25,3 +25,7 @@ scrape_configs:
   - job_name: sui-balance
     static_configs:
       - targets: ["127.0.0.1:19100"]
+
+  - job_name: hashi-network
+    static_configs:
+      - targets: ["127.0.0.1:19101"]

@@ -33,13 +33,13 @@ def datasource_walk(obj):
             datasource_walk(value)
 
 
-def stat_panel(pid, title, expr, x, w=4, unit="short", description=""):
+def stat_panel(pid, title, expr, x, w=4, unit="short", description="", y=1):
     return {
         "id": pid,
         "type": "stat",
         "title": title,
         "description": description,
-        "gridPos": {"x": x, "y": 1, "w": w, "h": 4},
+        "gridPos": {"x": x, "y": y, "w": w, "h": 4},
         "datasource": {"type": "prometheus", "uid": "${datasource}"},
         "targets": [{"refId": "A", "expr": expr, "instant": True, "range": False}],
         "fieldConfig": {"defaults": {"unit": unit, "color": {"mode": "thresholds"}, "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": None}, {"color": "green", "value": 1}]}}, "overrides": []},
@@ -59,7 +59,7 @@ def variable(name, label, query, multi=True, include_all=True):
     }
 
 for panel in d.get("panels", []):
-    panel["gridPos"]["y"] = panel.get("gridPos", {}).get("y", 0) + 6
+    panel["gridPos"]["y"] = panel.get("gridPos", {}).get("y", 0) + 18
     panel["title"] = re.sub(r"❗\s*", "", panel.get("title", ""))
     if panel.get("id") == 86:
         panel["title"] = "Presignature Gauge (informational)"
@@ -76,7 +76,7 @@ datasource_walk(d)
 d["id"] = None
 d["uid"] = "hashi-community"
 d["title"] = "Hashi Community — Fleet & Node Detail"
-d["description"] = "Provider-neutral multi-operator Hashi, Bitcoin Signet and operator gas dashboard. Derived from Trusted Point's MIT-licensed dashboard and inspired by Sui validator fleet dashboards."
+d["description"] = "Provider-neutral network-wide and opt-in deep monitoring for Hashi, Bitcoin and operator gas. Derived from Trusted Point's Apache-2.0 dashboard and inspired by Sui validator fleet dashboards."
 d["tags"] = ["hashi", "community", "multi-operator", "bitcoin", "sui"]
 d["editable"] = True
 d.pop("__inputs", None)
@@ -97,14 +97,32 @@ fleet_filter = 'network=~"$network",operator=~"$operator"'
 healthy = f'''sum((max by(node,operator)(up{{job="hashi",{fleet_filter}}}) == 1)
  and on(node,operator) (max by(node,operator)(hashi_kyoto_synced{{{fleet_filter}}}) == 1)
  and on(node,operator) (max by(node,operator)(hashi_kyoto_connected_peers{{{fleet_filter}}}) > 0))'''
+network_filter = 'network=~"$network"'
+endpoint_history = {
+    "id": 1107, "type": "status-history", "title": "All Committee Endpoint TLS Status",
+    "description": "Public endpoint reachability for every member discovered from the on-chain current committee. This does not expose private node metrics.",
+    "gridPos": {"x": 0, "y": 5, "w": 24, "h": 7},
+    "datasource": {"type": "prometheus", "uid": "${datasource}"},
+    "targets": [{"refId": "A", "expr": f'hashi_network_endpoint_tls_up{{{network_filter}}}', "legendFormat": "{{{{host}}}}", "range": True}],
+    "fieldConfig": {"defaults": {"unit": "bool", "mappings": [{"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": None}, {"color": "green", "value": 1}]}}, "overrides": []},
+    "options": {"showValue": "auto", "rowHeight": 0.8, "colWidth": 0.9, "legend": {"displayMode": "list", "placement": "bottom", "showLegend": False}, "tooltip": {"mode": "single", "sort": "none"}},
+}
 new_panels = [
-    {"id": 1000, "type": "row", "title": "Community Fleet Overview", "collapsed": False, "panels": [], "gridPos": {"x": 0, "y": 0, "w": 24, "h": 1}},
-    stat_panel(1001, "Reporting Nodes", f'count(max by(node,operator)(up{{job="hashi",{fleet_filter}}}))', 0),
-    stat_panel(1002, "Healthy Nodes", healthy, 4),
-    stat_panel(1003, "Epoch-aligned Nodes", f'sum((max by(node,operator)(hashi_epoch{{{fleet_filter}}}) - on(node,operator) max by(node,operator)(hashi_sui_epoch{{{fleet_filter}}})) == bool 0)', 8),
-    stat_panel(1004, "Operator SUI Reserve", f'sum(hashi_operator_sui_balance_mist{{{fleet_filter}}}) / 1e9', 12, unit="sui"),
-    stat_panel(1005, "Bitcoin RPC Healthy", f'sum(max by(node,operator)(bitcoin_node_rpc_available{{{fleet_filter}}}) == 1)', 16),
-    stat_panel(1006, "Kyoto Synced", f'sum(max by(node,operator)(hashi_kyoto_synced{{{fleet_filter}}}) == 1)', 20),
+    {"id": 1100, "type": "row", "title": "Hashi Testnet — Entire On-chain Committee", "collapsed": False, "panels": [], "gridPos": {"x": 0, "y": 0, "w": 24, "h": 1}},
+    stat_panel(1101, "Committee Epoch", f'max(hashi_network_committee_epoch{{{network_filter}}})', 0),
+    stat_panel(1102, "On-chain Members", f'max(hashi_network_committee_members{{{network_filter}}})', 4),
+    stat_panel(1103, "Endpoints Configured", f'count(hashi_network_member_info{{{network_filter},endpoint!=""}})', 8),
+    stat_panel(1104, "TLS Reachable", f'sum(hashi_network_endpoint_tls_up{{{network_filter}}})', 12),
+    stat_panel(1105, "HTTP/2 Ready", f'sum(hashi_network_endpoint_http2_ready{{{network_filter}}})', 16),
+    stat_panel(1106, "Unavailable", f'max(hashi_network_committee_members{{{network_filter}}}) - sum(hashi_network_endpoint_tls_up{{{network_filter}}})', 20),
+    endpoint_history,
+    {"id": 1000, "type": "row", "title": "Opt-in Deep Metrics — Selected Operators", "collapsed": False, "panels": [], "gridPos": {"x": 0, "y": 12, "w": 24, "h": 1}},
+    stat_panel(1001, "Reporting Nodes", f'count(max by(node,operator)(up{{job="hashi",{fleet_filter}}}))', 0, y=13),
+    stat_panel(1002, "Healthy Nodes", healthy, 4, y=13),
+    stat_panel(1003, "Epoch-aligned Nodes", f'sum((max by(node,operator)(hashi_epoch{{{fleet_filter}}}) - on(node,operator) max by(node,operator)(hashi_sui_epoch{{{fleet_filter}}})) == bool 0)', 8, y=13),
+    stat_panel(1004, "Operator SUI Reserve", f'sum(hashi_operator_sui_balance_mist{{{fleet_filter}}}) / 1e9', 12, unit="sui", y=13),
+    stat_panel(1005, "Bitcoin RPC Healthy", f'sum(max by(node,operator)(bitcoin_node_rpc_available{{{fleet_filter}}}) == 1)', 16, y=13),
+    stat_panel(1006, "Kyoto Synced", f'sum(max by(node,operator)(hashi_kyoto_synced{{{fleet_filter}}}) == 1)', 20, y=13),
 ]
 d["panels"] = new_panels + d.get("panels", [])
 DEST.parent.mkdir(parents=True, exist_ok=True)

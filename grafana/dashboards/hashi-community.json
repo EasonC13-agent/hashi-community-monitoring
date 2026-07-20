@@ -16,7 +16,7 @@
       }
     ]
   },
-  "description": "Provider-neutral multi-operator Hashi, Bitcoin Signet and operator gas dashboard. Derived from Trusted Point's MIT-licensed dashboard and inspired by Sui validator fleet dashboards.",
+  "description": "Provider-neutral network-wide and opt-in deep monitoring for Hashi, Bitcoin and operator gas. Derived from Trusted Point's Apache-2.0 dashboard and inspired by Sui validator fleet dashboards.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
@@ -24,14 +24,459 @@
   "links": [],
   "panels": [
     {
-      "id": 1000,
+      "id": 1100,
       "type": "row",
-      "title": "Community Fleet Overview",
+      "title": "Hashi Testnet \u2014 Entire On-chain Committee",
       "collapsed": false,
       "panels": [],
       "gridPos": {
         "x": 0,
         "y": 0,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 1101,
+      "type": "stat",
+      "title": "Committee Epoch",
+      "description": "",
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(hashi_network_committee_epoch{network=~\"$network\"})",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 1102,
+      "type": "stat",
+      "title": "On-chain Members",
+      "description": "",
+      "gridPos": {
+        "x": 4,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(hashi_network_committee_members{network=~\"$network\"})",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 1103,
+      "type": "stat",
+      "title": "Endpoints Configured",
+      "description": "",
+      "gridPos": {
+        "x": 8,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "count(hashi_network_member_info{network=~\"$network\",endpoint!=\"\"})",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 1104,
+      "type": "stat",
+      "title": "TLS Reachable",
+      "description": "",
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(hashi_network_endpoint_tls_up{network=~\"$network\"})",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 1105,
+      "type": "stat",
+      "title": "HTTP/2 Ready",
+      "description": "",
+      "gridPos": {
+        "x": 16,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(hashi_network_endpoint_http2_ready{network=~\"$network\"})",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 1106,
+      "type": "stat",
+      "title": "Unavailable",
+      "description": "",
+      "gridPos": {
+        "x": 20,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(hashi_network_committee_members{network=~\"$network\"}) - sum(hashi_network_endpoint_tls_up{network=~\"$network\"})",
+          "instant": true,
+          "range": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 1107,
+      "type": "status-history",
+      "title": "All Committee Endpoint TLS Status",
+      "description": "Public endpoint reachability for every member discovered from the on-chain current committee. This does not expose private node metrics.",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "hashi_network_endpoint_tls_up{network=~\"$network\"}",
+          "legendFormat": "{{{{host}}}}",
+          "range": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bool",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showValue": "auto",
+        "rowHeight": 0.8,
+        "colWidth": 0.9,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      }
+    },
+    {
+      "id": 1000,
+      "type": "row",
+      "title": "Opt-in Deep Metrics \u2014 Selected Operators",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 12,
         "w": 24,
         "h": 1
       }
@@ -43,7 +488,7 @@
       "description": "",
       "gridPos": {
         "x": 0,
-        "y": 1,
+        "y": 13,
         "w": 4,
         "h": 4
       },
@@ -103,7 +548,7 @@
       "description": "",
       "gridPos": {
         "x": 4,
-        "y": 1,
+        "y": 13,
         "w": 4,
         "h": 4
       },
@@ -163,7 +608,7 @@
       "description": "",
       "gridPos": {
         "x": 8,
-        "y": 1,
+        "y": 13,
         "w": 4,
         "h": 4
       },
@@ -223,7 +668,7 @@
       "description": "",
       "gridPos": {
         "x": 12,
-        "y": 1,
+        "y": 13,
         "w": 4,
         "h": 4
       },
@@ -283,7 +728,7 @@
       "description": "",
       "gridPos": {
         "x": 16,
-        "y": 1,
+        "y": 13,
         "w": 4,
         "h": 4
       },
@@ -343,7 +788,7 @@
       "description": "",
       "gridPos": {
         "x": 20,
-        "y": 1,
+        "y": 13,
         "w": 4,
         "h": 4
       },
@@ -402,7 +847,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 6
+        "y": 18
       },
       "id": 36,
       "panels": [],
@@ -436,7 +881,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 7
+        "y": 19
       },
       "id": 94,
       "options": {
@@ -502,7 +947,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 7
+        "y": 19
       },
       "id": 39,
       "options": {
@@ -566,7 +1011,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 7
+        "y": 19
       },
       "id": 41,
       "options": {
@@ -630,7 +1075,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 7
+        "y": 19
       },
       "id": 54,
       "options": {
@@ -700,7 +1145,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 7
+        "y": 19
       },
       "id": 147,
       "options": {
@@ -783,7 +1228,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 7
+        "y": 19
       },
       "id": 58,
       "options": {
@@ -848,7 +1293,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 11
+        "y": 23
       },
       "id": 38,
       "options": {
@@ -912,7 +1357,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 11
+        "y": 23
       },
       "id": 48,
       "options": {
@@ -981,7 +1426,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 11
+        "y": 23
       },
       "id": 40,
       "options": {
@@ -1055,7 +1500,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 11
+        "y": 23
       },
       "id": 9,
       "options": {
@@ -1125,7 +1570,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 11
+        "y": 23
       },
       "id": 55,
       "options": {
@@ -1195,7 +1640,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 11
+        "y": 23
       },
       "id": 60,
       "options": {
@@ -1259,7 +1704,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 15
+        "y": 27
       },
       "id": 90,
       "options": {
@@ -1323,7 +1768,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 15
+        "y": 27
       },
       "id": 50,
       "options": {
@@ -1388,7 +1833,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 15
+        "y": 27
       },
       "id": 86,
       "options": {
@@ -1457,7 +1902,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 15
+        "y": 27
       },
       "id": 87,
       "options": {
@@ -1527,7 +1972,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 15
+        "y": 27
       },
       "id": 51,
       "options": {
@@ -1611,7 +2056,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 15
+        "y": 27
       },
       "id": 105,
       "options": {
@@ -1730,7 +2175,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 19
+        "y": 31
       },
       "id": 120,
       "options": {
@@ -1823,7 +2268,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 19
+        "y": 31
       },
       "id": 75,
       "options": {
@@ -1917,7 +2362,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 19
+        "y": 31
       },
       "id": 76,
       "options": {
@@ -2036,7 +2481,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 28
+        "y": 40
       },
       "id": 122,
       "options": {
@@ -2131,7 +2576,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 28
+        "y": 40
       },
       "id": 59,
       "options": {
@@ -2225,7 +2670,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 28
+        "y": 40
       },
       "id": 158,
       "options": {
@@ -2319,7 +2764,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 37
+        "y": 49
       },
       "id": 89,
       "options": {
@@ -2413,7 +2858,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 37
+        "y": 49
       },
       "id": 88,
       "options": {
@@ -2540,7 +2985,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 37
+        "y": 49
       },
       "id": 157,
       "options": {
@@ -2634,7 +3079,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 46
+        "y": 58
       },
       "id": 152,
       "options": {
@@ -2760,7 +3205,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 46
+        "y": 58
       },
       "id": 57,
       "options": {
@@ -2859,7 +3304,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 46
+        "y": 58
       },
       "id": 148,
       "options": {
@@ -2933,7 +3378,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 55
+        "y": 67
       },
       "id": 150,
       "options": {
@@ -3000,7 +3445,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 55
+        "y": 67
       },
       "id": 64,
       "options": {
@@ -3065,7 +3510,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 55
+        "y": 67
       },
       "id": 65,
       "options": {
@@ -3129,7 +3574,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 55
+        "y": 67
       },
       "id": 66,
       "options": {
@@ -3193,7 +3638,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 55
+        "y": 67
       },
       "id": 72,
       "options": {
@@ -3258,7 +3703,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 55
+        "y": 67
       },
       "id": 74,
       "options": {
@@ -3301,7 +3746,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 59
+        "y": 71
       },
       "id": 111,
       "panels": [],
@@ -3341,7 +3786,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 60
+        "y": 72
       },
       "id": 118,
       "options": {
@@ -3425,7 +3870,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 60
+        "y": 72
       },
       "id": 151,
       "options": {
@@ -3492,7 +3937,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 60
+        "y": 72
       },
       "id": 115,
       "options": {
@@ -3558,7 +4003,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 60
+        "y": 72
       },
       "id": 104,
       "options": {
@@ -3625,7 +4070,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 60
+        "y": 72
       },
       "id": 107,
       "options": {
@@ -3689,7 +4134,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 60
+        "y": 72
       },
       "id": 117,
       "options": {
@@ -3758,7 +4203,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 64
+        "y": 76
       },
       "id": 131,
       "options": {
@@ -3833,7 +4278,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 64
+        "y": 76
       },
       "id": 18,
       "options": {
@@ -3909,7 +4354,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 64
+        "y": 76
       },
       "id": 112,
       "options": {
@@ -3975,7 +4420,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 64
+        "y": 76
       },
       "id": 133,
       "options": {
@@ -4041,7 +4486,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 64
+        "y": 76
       },
       "id": 109,
       "options": {
@@ -4104,7 +4549,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 64
+        "y": 76
       },
       "id": 137,
       "options": {
@@ -4201,7 +4646,7 @@
         "h": 10,
         "w": 8,
         "x": 0,
-        "y": 68
+        "y": 80
       },
       "id": 110,
       "options": {
@@ -4341,7 +4786,7 @@
         "h": 10,
         "w": 8,
         "x": 8,
-        "y": 68
+        "y": 80
       },
       "id": 116,
       "options": {
@@ -4450,7 +4895,7 @@
         "h": 10,
         "w": 8,
         "x": 16,
-        "y": 68
+        "y": 80
       },
       "id": 114,
       "options": {
@@ -4572,7 +5017,7 @@
         "h": 10,
         "w": 8,
         "x": 0,
-        "y": 78
+        "y": 90
       },
       "id": 139,
       "options": {
@@ -4677,7 +5122,7 @@
         "h": 10,
         "w": 8,
         "x": 8,
-        "y": 78
+        "y": 90
       },
       "id": 136,
       "options": {
@@ -4786,7 +5231,7 @@
         "h": 10,
         "w": 8,
         "x": 16,
-        "y": 78
+        "y": 90
       },
       "id": 113,
       "options": {
@@ -4825,7 +5270,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 88
+        "y": 100
       },
       "id": 91,
       "panels": [],
@@ -4863,7 +5308,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 89
+        "y": 101
       },
       "id": 71,
       "options": {
@@ -4927,7 +5372,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 89
+        "y": 101
       },
       "id": 101,
       "options": {
@@ -4990,7 +5435,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 89
+        "y": 101
       },
       "id": 46,
       "options": {
@@ -5053,7 +5498,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 89
+        "y": 101
       },
       "id": 61,
       "options": {
@@ -5116,7 +5561,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 89
+        "y": 101
       },
       "id": 82,
       "options": {
@@ -5179,7 +5624,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 89
+        "y": 101
       },
       "id": 81,
       "options": {
@@ -5275,7 +5720,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 93
+        "y": 105
       },
       "id": 149,
       "options": {
@@ -5377,7 +5822,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 93
+        "y": 105
       },
       "id": 159,
       "options": {
@@ -5479,7 +5924,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 93
+        "y": 105
       },
       "id": 79,
       "options": {
@@ -5583,7 +6028,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 101
+        "y": 113
       },
       "id": 84,
       "options": {
@@ -5716,7 +6161,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 101
+        "y": 113
       },
       "id": 47,
       "options": {
@@ -5818,7 +6263,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 101
+        "y": 113
       },
       "id": 135,
       "options": {
@@ -5923,7 +6368,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 109
+        "y": 121
       },
       "id": 83,
       "options": {
@@ -6026,7 +6471,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 109
+        "y": 121
       },
       "id": 160,
       "options": {
@@ -6120,7 +6565,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 109
+        "y": 121
       },
       "id": 134,
       "options": {
@@ -6171,7 +6616,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 117
+        "y": 129
       },
       "id": 155,
       "panels": [],
@@ -6238,7 +6683,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 118
+        "y": 130
       },
       "id": 103,
       "options": {
@@ -6355,7 +6800,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 118
+        "y": 130
       },
       "id": 153,
       "options": {
@@ -6449,7 +6894,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 118
+        "y": 130
       },
       "id": 145,
       "options": {
@@ -6567,7 +7012,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 127
+        "y": 139
       },
       "id": 127,
       "options": {
@@ -6672,7 +7117,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 127
+        "y": 139
       },
       "id": 146,
       "options": {
@@ -6804,7 +7249,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 127
+        "y": 139
       },
       "id": 130,
       "options": {
@@ -6901,7 +7346,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 136
+        "y": 148
       },
       "id": 68,
       "options": {
@@ -6994,7 +7439,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 136
+        "y": 148
       },
       "id": 154,
       "options": {
@@ -7126,7 +7571,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 136
+        "y": 148
       },
       "id": 156,
       "options": {
@@ -7168,7 +7613,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 145
+        "y": 157
       },
       "id": 128,
       "panels": [],
@@ -7236,7 +7681,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 146
+        "y": 158
       },
       "id": 92,
       "options": {
@@ -7343,7 +7788,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 146
+        "y": 158
       },
       "id": 140,
       "options": {
@@ -7450,7 +7895,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 146
+        "y": 158
       },
       "id": 142,
       "options": {
@@ -7556,7 +8001,7 @@
         "h": 9,
         "w": 8,
         "x": 0,
-        "y": 155
+        "y": 167
       },
       "id": 125,
       "options": {
@@ -7662,7 +8107,7 @@
         "h": 9,
         "w": 8,
         "x": 8,
-        "y": 155
+        "y": 167
       },
       "id": 141,
       "options": {
@@ -7768,7 +8213,7 @@
         "h": 9,
         "w": 8,
         "x": 16,
-        "y": 155
+        "y": 167
       },
       "id": 144,
       "options": {
@@ -7820,7 +8265,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 164
+        "y": 176
       },
       "id": 93,
       "panels": [],
@@ -7854,7 +8299,7 @@
         "h": 3,
         "w": 12,
         "x": 0,
-        "y": 165
+        "y": 177
       },
       "id": 95,
       "options": {
@@ -7917,7 +8362,7 @@
         "h": 3,
         "w": 12,
         "x": 12,
-        "y": 165
+        "y": 177
       },
       "id": 37,
       "options": {
@@ -7980,7 +8425,7 @@
         "h": 3,
         "w": 12,
         "x": 0,
-        "y": 168
+        "y": 180
       },
       "id": 100,
       "options": {
@@ -8045,7 +8490,7 @@
         "h": 3,
         "w": 12,
         "x": 12,
-        "y": 168
+        "y": 180
       },
       "id": 97,
       "options": {
@@ -8110,7 +8555,7 @@
         "h": 3,
         "w": 12,
         "x": 0,
-        "y": 171
+        "y": 183
       },
       "id": 99,
       "options": {
@@ -8175,7 +8620,7 @@
         "h": 3,
         "w": 12,
         "x": 12,
-        "y": 171
+        "y": 183
       },
       "id": 96,
       "options": {
@@ -8220,7 +8665,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 174
+        "y": 186
       },
       "id": 34,
       "panels": [],
@@ -8253,7 +8698,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 175
+        "y": 187
       },
       "id": 1,
       "options": {
@@ -8319,7 +8764,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 175
+        "y": 187
       },
       "id": 13,
       "options": {
@@ -8387,7 +8832,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 175
+        "y": 187
       },
       "id": 3,
       "options": {
@@ -8456,7 +8901,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 175
+        "y": 187
       },
       "id": 14,
       "options": {
@@ -8524,7 +8969,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 175
+        "y": 187
       },
       "id": 7,
       "options": {
@@ -8592,7 +9037,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 175
+        "y": 187
       },
       "id": 8,
       "options": {
@@ -8655,7 +9100,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 179
+        "y": 191
       },
       "id": 4,
       "options": {
@@ -8723,7 +9168,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 179
+        "y": 191
       },
       "id": 56,
       "options": {
@@ -8786,7 +9231,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 179
+        "y": 191
       },
       "id": 30,
       "options": {
@@ -8854,7 +9299,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 179
+        "y": 191
       },
       "id": 6,
       "options": {
@@ -8923,7 +9368,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 179
+        "y": 191
       },
       "id": 10,
       "options": {
@@ -9005,7 +9450,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 179
+        "y": 191
       },
       "id": 5,
       "options": {
@@ -9069,7 +9514,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 183
+        "y": 195
       },
       "id": 138,
       "options": {
@@ -9151,7 +9596,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 183
+        "y": 195
       },
       "id": 26,
       "options": {
@@ -9218,7 +9663,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 183
+        "y": 195
       },
       "id": 21,
       "options": {
@@ -9285,7 +9730,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 183
+        "y": 195
       },
       "id": 15,
       "options": {
@@ -9352,7 +9797,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 183
+        "y": 195
       },
       "id": 16,
       "options": {
@@ -9419,7 +9864,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 183
+        "y": 195
       },
       "id": 17,
       "options": {
@@ -9516,7 +9961,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 187
+        "y": 199
       },
       "id": 85,
       "options": {
@@ -9645,7 +10090,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 187
+        "y": 199
       },
       "id": 31,
       "options": {
@@ -9751,7 +10196,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 195
+        "y": 207
       },
       "id": 28,
       "options": {
@@ -9869,7 +10314,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 195
+        "y": 207
       },
       "id": 19,
       "options": {
@@ -9999,7 +10444,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 203
+        "y": 215
       },
       "id": 33,
       "options": {
@@ -10059,7 +10504,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 203
+        "y": 215
       },
       "id": 32,
       "options": {
@@ -10122,7 +10567,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 203
+        "y": 215
       },
       "id": 27,
       "options": {
@@ -10186,7 +10631,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 203
+        "y": 215
       },
       "id": 20,
       "options": {
@@ -10250,7 +10695,7 @@
         "h": 4,
         "w": 4,
         "x": 12,
-        "y": 207
+        "y": 219
       },
       "id": 29,
       "options": {
@@ -10315,7 +10760,7 @@
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 207
+        "y": 219
       },
       "id": 25,
       "options": {
@@ -10378,7 +10823,7 @@
         "h": 4,
         "w": 4,
         "x": 20,
-        "y": 207
+        "y": 219
       },
       "id": 24,
       "options": {

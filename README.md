@@ -18,6 +18,9 @@ Grafana variables use these labels, so one dashboard works for one node, many no
 
 ## Included
 
+- Automatic discovery of the entire current committee from Sui on-chain state
+- Public endpoint probes for DNS, TCP, Hashi TLS, HTTP/2 ALPN and latency
+- A network-wide status history that does not require operator opt-in
 - Full Hashi metrics dashboard derived from Trusted Point's Apache-2.0 dashboard
 - Fleet-wide reporting, sync, epoch, Bitcoin RPC and SUI reserve panels
 - Optional Trusted Point Bitcoin Core exporter pinned to commit `751cd40`
@@ -47,6 +50,7 @@ Local endpoints bind only to loopback:
 - Prometheus: `127.0.0.1:19090`
 - Bitcoin exporter: `127.0.0.1:19097`
 - SUI balance exporter: `127.0.0.1:19100`
+- Fleet endpoint prober: `127.0.0.1:19101`
 
 Use a TLS reverse proxy for Grafana. Do not expose Bitcoin RPC or raw node metrics directly.
 
@@ -66,6 +70,28 @@ Add a target with standard labels:
 
 Add the same node identity and operator address to `NODES_JSON` for SUI balance.
 
+## Network-wide committee monitoring
+
+The network overview does not scrape private metrics from other operators. Every five minutes it reads the current Hashi committee from Sui, then probes all registered public endpoints. This automatically follows committee epoch changes and exposes:
+
+- on-chain committee epoch and member count
+- full validator/operator addresses and registered endpoint
+- DNS resolution, TCP reachability, TLS handshake and HTTP/2 ALPN readiness
+- probe duration and certificate fingerprint
+
+The upstream Hashi CLI currently truncates committee output and has no JSON mode. `scripts/patch_hashi_committee_json.py` adds a read-only `HASHI_COMMITTEE_JSON=1` output path. Build it as a separate discovery image; do not replace the production Hashi image:
+
+```bash
+python3 /path/to/hashi-community-monitoring/scripts/patch_hashi_committee_json.py /path/to/hashi
+cd /path/to/hashi
+IMAGE_NAME=hashi-fleet-discovery IMAGE_TAG=<hashi-commit> \
+  bash docker/hashi/build.sh
+```
+
+Install `systemd/hashi-community-roster.{service,timer}` after adjusting its path. The timer invokes `scripts/refresh_committee.sh`, validates a non-empty JSON roster and atomically replaces `data/committee.json`.
+
+Public endpoint failures are dashboard information only. They are not connected to paging because another operator's temporary outage does not require local intervention.
+
 ## Central/community mode
 
 Hashi's native `metrics_push` uses Mysten's `sui-proxy /publish/metrics` mTLS protocol. It is **not** Prometheus remote-write and cannot be sent directly to Prometheus.
@@ -73,6 +99,11 @@ Hashi's native `metrics_push` uses Mysten's `sui-proxy /publish/metrics` mTLS pr
 For opt-in community aggregation, run Prometheus Agent or vmagent beside each operator and remote-write to the collector's protected `/api/v1/write` endpoint. Apply the four standard labels before sending. Protect the receiver with per-operator authentication or mTLS; never make an unauthenticated receiver public.
 
 Native Hashi metrics-push can be integrated later by deploying Mysten's compatible `sui-proxy` ingestion path and validating operators against on-chain TLS keys.
+
+This creates two distinct data tiers:
+
+1. **Entire committee, no opt-in:** public endpoint and on-chain health for every member.
+2. **Opt-in deep metrics:** Kyoto, MPC, queues, Bitcoin Core and SUI reserve for operators that scrape or remote-write private metrics.
 
 ## Alert philosophy
 

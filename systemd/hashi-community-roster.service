@@ -1,0 +1,8 @@
+[Unit]
+Description=Refresh Hashi community roster from Sui on-chain committee
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/mnt/PCIE5_4T_SSD/hashi-testnet/monitoring/community/scripts/refresh_committee.sh
