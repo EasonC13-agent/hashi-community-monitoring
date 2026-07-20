@@ -2,6 +2,8 @@
 
 Provider-neutral Grafana and Prometheus monitoring for a fleet of [MystenLabs/Hashi](https://github.com/MystenLabs/Hashi) operators, including optional Bitcoin Core detail and Sui operator Address Balance.
 
+Live GiveRep deployment: https://monitor.hashi.testnet.giverep.com/
+
 ## What is different from a single-operator dashboard?
 
 Every series carries the same labels:
