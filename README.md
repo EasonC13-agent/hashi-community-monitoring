@@ -25,7 +25,7 @@ Grafana variables use these labels, so one dashboard works for one node, many no
 - Fleet-wide reporting, sync, epoch, Bitcoin RPC and SUI reserve panels
 - Optional Trusted Point Bitcoin Core exporter pinned to commit `751cd40`
 - Sui GraphQL exporter for coin balance + Address Balance
-- Prometheus retention of 30 days / 20 GB
+- Prometheus retention of 3 days / 20 GB
 - Actionable-only sample alert rules with 10–30 minute persistence
 - Local scrape and central Prometheus remote-write receiver support
 
